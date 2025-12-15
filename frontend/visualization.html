@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Source Tree - Knowledge Network Visualization</title>
+    <link rel="stylesheet" href="lombardi.css">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+</head>
+
+<body>
+
+    <div id="header">
+        <h1>Source Tree</h1>
+        <p class="subtitle">Visualizing the Genealogy of Digital Knowledge</p>
+    </div>
+
+    <!-- Input Form for Live Analysis -->
+    <div id="input-panel">
+        <div class="input-container">
+            <input type="text"
+                   id="url-input"
+                   placeholder="Enter URL to analyze (e.g., https://en.wikipedia.org/wiki/Philosophy)"
+                   spellcheck="false">
+            <button id="analyze-btn">Analyze</button>
+        </div>
+        <div id="progress-message"></div>
+    </div>
+
+    <div id="canvas-container"></div>
+    <div id="tooltip"></div>
+
+    <div id="controls">
+        <div class="legend-item">
+            <div class="legend-dot hub-style"></div>
+            <span>Hub Node</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot offline-style"></div>
+            <span>Offline Source 📖</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-dot" style="border: 1.5px solid #6dd5ed; background: #6dd5ed15;"></div>
+            <span>Online Source</span>
+        </div>
+        <div class="legend-item">
+            <span style="color: #6dd5ed; font-size: 16px;">●</span>
+            <span>Flow Particle</span>
+        </div>
+        <div class="legend-item" id="status">
+            Loading...
+        </div>
+    </div>
+
+    <script>
+        // --- Configuration ---
+        const WIDTH = window.innerWidth;
+        const HEIGHT = window.innerHeight;
+        const MARGIN = { top: 100, bottom: 50, left: 100, right: 100 };
+
+        // API Configuration
+        const API_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? 'http://localhost:5001'
+            : 'YOUR_RAILWAY_URL_HERE';  // Will be replaced with actual Railway URL
+
+        // Lombardi Tiers (Y-axis) - Adaptive
+        // We calculate the Y position based on the tiers PRESENT in the data
+        // so we don't have empty space if we only have Tier 4 and 5.
+
+        let yScale; // Defined after data load
+
+        const svg = d3.select("#canvas-container").append("svg")
+            .attr("width", WIDTH)
+            .attr("height", HEIGHT)
+            .call(d3.zoom().on("zoom", (event) => g.attr("transform", event.transform)))
+            .append("g");
+
+        const g = svg.append("g");
+
+        // --- Data Loading & Processing ---
+        d3.json('graph_data.json').then(data => {
+            const statusDiv = document.getElementById("status");
+            statusDiv.textContent = "Generative Drawing in Progress...";
+
+            let nodes = data.nodes;
+            let links = data.links;
+
+            // --- NARRATIVE STRUCTURING: Domain Hubs ---
+            // "Tie nodes back to original source"
+            // We find domains that appear multiple times and create a "Hub" node for them.
+
+            const domainCounts = {};
+            const domainNodesMap = {}; // domain -> [node1, node2...]
+
+            nodes.forEach(n => {
+                if (!n.domain) return;
+                domainCounts[n.domain] = (domainCounts[n.domain] || 0) + 1;
+                if (!domainNodesMap[n.domain]) domainNodesMap[n.domain] = [];
+                domainNodesMap[n.domain].push(n);
+            });
+
+            // Identify "Major Players" (Domains with > 1 node)
+            Object.keys(domainCounts).forEach(domain => {
+                const count = domainCounts[domain];
+                // If multiple articles from same domain, create a Hub
+                if (count > 1) {
+                    const hubId = `HUB:${domain}`;
+                    const hubNode = {
+                        id: hubId,
+                        title: `${domain} (Hub)`,
+                        domain: domain,
+                        type: 'hub', // Special type
+                        tier: domainNodesMap[domain][0].tier, // Inherit tier of children
+                        citations: count * 2, // Make it big
+                        isHub: true
+                    };
+
+                    nodes.push(hubNode);
+
+                    // Link children to Hub
+                    domainNodesMap[domain].forEach(child => {
+                        links.push({
+                            source: child.id,
+                            target: hubId,
+                            type: 'structural', // Special link type
+                            confidence: 1.0
+                        });
+                    });
+                }
+            });
+
+            // Traditional force-directed layout - no strict tiers
+            // Just use natural physics simulation
+
+            // Simplified Color Scale - Monochromatic with subtle variation
+            // Cool blue tones for minimal, abstract aesthetic
+            const colorScale = d3.scaleLinear()
+                .domain([1, 5])
+                .range(["#6dd5ed", "#2193b0"]) // Cyan to deep blue gradient
+                .interpolate(d3.interpolateHcl);
+
+            // Helper: Node Size based on Citations (Authority)
+            // Scale radius from 4px to 16px based on citations (larger for better visibility)
+            const maxCitations = d3.max(nodes, d => d.citations) || 1;
+            const rScale = d3.scaleSqrt()
+                .domain([0, maxCitations])
+                .range([4, 16]);
+
+            // Traditional Force-Directed Layout
+            // Use organic physics-based positioning with radial tendency
+            const simulation = d3.forceSimulation(nodes)
+                .force("link", d3.forceLink(links).id(d => d.id)
+                    .strength(0.3)
+                    .distance(d => {
+                        // Hubs have longer links, regular nodes closer
+                        if (d.source.isHub || d.target.isHub) return 200;
+                        return 120;
+                    }))
+                .force("charge", d3.forceManyBody()
+                    .strength(d => d.isHub ? -2000 : -600)) // Hubs repel more
+                .force("collide", d3.forceCollide(d => rScale(d.citations || 0) * 2.5 + 20).iterations(3))
+                .force("center", d3.forceCenter(WIDTH / 2, HEIGHT / 2))
+                .force("radial", d3.forceRadial(d => {
+                    // Create subtle radial layers based on tier
+                    return 100 + (d.tier || 3) * 80;
+                }, WIDTH / 2, HEIGHT / 2).strength(0.3)); // Weak radial force for organic clustering
+
+            // Run simulation to stabilize
+            for (let i = 0; i < 600; ++i) simulation.tick();
+            simulation.stop();
+
+            // Sort nodes by X for the "drawing" order (Narrative flow from left to right)
+            nodes.sort((a, b) => a.x - b.x);
+
+            // --- Rendering ---
+
+            // Helper: Clean Labels (Short & Abstract)
+            function cleanLabel(d) {
+                // If it looks like a URL, strip it down
+                let text = d.title || d.domain || d.id;
+
+                // Handle offline sources
+                if (d.type === 'virtual' || text.startsWith('[Offline]')) {
+                    text = text.replace('[Offline] ', '');
+                    if (text.length > 30) {
+                        return text.substring(0, 27) + "...";
+                    }
+                    return text;
+                }
+
+                // If text is suspiciously long or looks like a URL
+                if (text.includes('http') || text.length > 30) {
+                    if (d.domain) return d.domain; // Prefer domain
+                    try {
+                        return new URL(text).hostname;
+                    } catch (e) {
+                        return text.substring(0, 20) + "...";
+                    }
+                }
+
+                // If it's a long sentence title, truncate
+                if (text.length > 25) {
+                    return text.substring(0, 22) + "...";
+                }
+                return text;
+            }
+
+            // Helper for Arcs
+            // Lombardi arcs are typically semi-circles or flattened curves
+            function linkArc(d) {
+                const dx = d.target.x - d.source.x;
+                const dy = d.target.y - d.source.y;
+                const dr = Math.sqrt(dx * dx + dy * dy) * 1.5; // Large radius for shallow curve
+
+                // Curve direction based on relationship
+                // If it's a "backwards" link (target is to the left), curve differently?
+                // Or just curve all "up" or "down" based on tier difference?
+                // Let's alternate based on index to reduce overlap, or just curve "up" generally.
+                // Lombardi often had arcs going UP for dominant connections.
+
+                // Simple quadratic helper
+                const midX = (d.source.x + d.target.x) / 2;
+                const midY = (d.source.y + d.target.y) / 2;
+
+                // Offset control point
+                // If same tier, arc high. If different tier, S-curve?
+                // Let's use Arc path command (A)
+                // "M startX startY A radius radius 0 0 1 endX endY"
+
+                // Sweep flag: 1 for below, 0 for above (usually)
+                const sweep = (d.target.x > d.source.x) ? 0 : 1;
+
+                return `M${d.source.x},${d.source.y}A${dr},${dr} 0 0,${sweep} ${d.target.x},${d.target.y}`;
+            }
+
+            // 1. Draw Links (Hidden initially)
+            const linkPath = g.selectAll(".link")
+                .data(links)
+                .enter().append("path")
+                .attr("class", d => "link " + (d.type === 'virtual' ? 'virtual' : '') + (d.type === 'structural' ? ' structural' : ''))
+                .attr("d", linkArc)
+                .attr("stroke-dasharray", function () { return this.getTotalLength() + " " + this.getTotalLength(); })
+                .attr("stroke-dashoffset", function () { return this.getTotalLength(); }); // Hidden
+
+            // 1b. Create Flow Particles Group (unique visual twist!)
+            const particlesGroup = g.append("g").attr("class", "particles");
+
+            // 2. Draw Nodes (Hidden initially)
+            const nodeGroup = g.selectAll(".node")
+                .data(nodes)
+                .enter().append("g")
+                .attr("class", d => {
+                    let classes = "node";
+                    if (d.isHub) classes += " hub";
+                    if (d.type === 'virtual') classes += " offline";
+                    return classes;
+                })
+                .attr("transform", d => `translate(${d.x},${d.y})`)
+                .attr("opacity", 0)
+                .on("click", (event, d) => {
+                    // Open link in new tab (only for online sources)
+                    if (d.id && d.id.startsWith('http')) {
+                        window.open(d.id, '_blank');
+                    }
+                });
+
+            // Add pulsing halo for important nodes (hubs and high-citation nodes)
+            nodeGroup.filter(d => d.isHub || d.citations > 3).append("circle")
+                .attr("class", "halo")
+                .attr("r", d => rScale(d.citations || 0) * 2.5)
+                .style("fill", "none")
+                .style("stroke", d => {
+                    if (d.isHub) return "#fff";
+                    if (d.type === 'virtual') return "#f4a460";
+                    return colorScale(d.tier || 3);
+                })
+                .style("stroke-width", "1px")
+                .style("opacity", 0.3)
+                .call(selection => {
+                    // Pulsing animation
+                    function pulse() {
+                        selection.transition()
+                            .duration(2000)
+                            .ease(d3.easeSinInOut)
+                            .attr("r", d => rScale(d.citations || 0) * 3.5)
+                            .style("opacity", 0)
+                            .transition()
+                            .duration(0)
+                            .attr("r", d => rScale(d.citations || 0) * 2.5)
+                            .style("opacity", 0.3)
+                            .on("end", pulse);
+                    }
+                    pulse();
+                });
+
+            // Main node circle
+            nodeGroup.append("circle")
+                .attr("r", d => rScale(d.citations || 0))
+                .style("stroke", d => {
+                    if (d.isHub) return "#fff";
+                    if (d.type === 'virtual') return "#f4a460"; // Sandy orange for offline
+                    return colorScale(d.tier || 3);
+                })
+                .style("fill", d => {
+                    if (d.isHub) return "rgba(255, 255, 255, 0.05)";
+                    if (d.type === 'virtual') return "rgba(244, 164, 96, 0.15)"; // Sandy orange fill
+                    return `${colorScale(d.tier || 3)}15`;
+                })
+                .style("stroke-dasharray", d => d.type === 'virtual' ? "3, 3" : "none"); // Dashed for offline
+
+            // Add icon for offline sources
+            nodeGroup.filter(d => d.type === 'virtual').append("text")
+                .attr("dy", 5)
+                .attr("text-anchor", "middle")
+                .text("📖") // Book emoji for offline sources
+                .style("font-size", "14px")
+                .style("opacity", 0.9)
+                .style("pointer-events", "none");
+
+            nodeGroup.append("text")
+                .attr("dy", d => {
+                    // Smart positioning: hubs and tier 1 above, others below
+                    if (d.isHub) return -20;
+                    if (d.tier === 1) return -18;
+                    return 22;
+                })
+                .attr("text-anchor", "middle")
+                .text(d => cleanLabel(d))
+                .style("font-size", d => {
+                    if (d.isHub) return "12px";
+                    if (d.citations > 5) return "11px";
+                    return "10px";
+                })
+                .style("fill", d => d.type === 'virtual' ? "#f4a460" : null); // Orange text for offline
+
+            // --- Animation: The "Generative" Drawing ---
+
+            // We want to draw from Left to Right (since we sorted nodes by X)
+            // Reveal nodes one by one with a more deliberate pace
+            const transitionDuration = 1000;
+            const delayPerNode = 150;
+
+            nodeGroup.transition()
+                .delay((d, i) => i * delayPerNode)
+                .duration(transitionDuration)
+                .attr("opacity", 1)
+                .on("start", function (d) {
+                    // When a node appears, draw the links connect TO it or FROM it?
+                    // Better: Draw links FROM this node to others (if the other is already visible? no, just draw forward)
+                    // Let's just draw all links connected to this node that haven't been drawn?
+
+                    // Simpler: Draw link when its SOURCE node appears (for forward links)
+                    // or when its TARGET node appears (for backward links).
+                    // Actually, just trigger links based on the max index of source/target.
+                });
+
+            // Link Animation
+            // We calculate when each link should appear based on when its nodes appear.
+            // Generally wait for both nodes to exist, but if we assume left-to-right sort,
+            // we can trigger when the right-most node (Max X) appears.
+
+            linkPath.transition()
+                .delay(d => {
+                    const sourceIdx = nodes.indexOf(d.source);
+                    const targetIdx = nodes.indexOf(d.target);
+                    const laterIdx = Math.max(sourceIdx, targetIdx);
+                    return laterIdx * delayPerNode + 200; // Wait for node to appear
+                })
+                .duration(1500)
+                .ease(d3.easeCubicOut)
+                .attr("stroke-dashoffset", 0);
+
+            // Notify finish
+            setTimeout(() => {
+                statusDiv.textContent = "Drawing Complete.";
+
+                // Start animated flow particles (unique visual twist!)
+                startFlowParticles();
+            }, nodes.length * delayPerNode + 2000);
+
+            // Flow Particles Animation - creates moving dots along links
+            function startFlowParticles() {
+                // Select subset of important links to animate
+                const animatedLinks = links.filter((l, i) => {
+                    // Animate structural links and every 2nd regular link
+                    return l.type === 'structural' || i % 2 === 0;
+                });
+
+                function animateParticle(link, delay) {
+                    const path = linkPath.filter(d => d === link).node();
+                    if (!path) return;
+
+                    const pathLength = path.getTotalLength();
+                    const duration = 3000 + Math.random() * 2000; // 3-5 seconds
+
+                    const particle = particlesGroup.append("circle")
+                        .attr("r", 2)
+                        .attr("class", "flow-particle")
+                        .style("fill", colorScale(link.source.tier || 3))
+                        .style("opacity", 0);
+
+                    function animate() {
+                        particle.transition()
+                            .duration(200)
+                            .style("opacity", 0.8)
+                            .transition()
+                            .duration(duration - 400)
+                            .ease(d3.easeLinear)
+                            .attrTween("transform", () => {
+                                return (t) => {
+                                    const point = path.getPointAtLength(t * pathLength);
+                                    return `translate(${point.x},${point.y})`;
+                                };
+                            })
+                            .transition()
+                            .duration(200)
+                            .style("opacity", 0)
+                            .on("end", () => {
+                                // Loop: restart after random delay
+                                setTimeout(animate, Math.random() * 2000);
+                            });
+                    }
+
+                    setTimeout(animate, delay);
+                }
+
+                // Start particles with staggered delays
+                animatedLinks.forEach((link, i) => {
+                    animateParticle(link, i * 100);
+                });
+            }
+
+
+            // --- Interactions ---
+            const tooltip = d3.select("#tooltip");
+
+            nodeGroup.on("mouseover", (event, d) => {
+                const isOffline = d.type === 'virtual';
+                tooltip.style("display", "block")
+                    .html(`
+                        <strong>${d.title}</strong><br>
+                        <span style="color:#888">${d.domain}</span><br>
+                        <em style="color:${isOffline ? '#f4a460' : '#6dd5ed'}">${isOffline ? '📖 OFFLINE SOURCE' : d.type.toUpperCase()}</em><br>
+                        <br>
+                        Citations: ${d.citations}
+                        ${isOffline ? '<br><span style="color:#f4a460; font-size:10px;">Referenced but not linked</span>' : ''}
+                    `);
+
+                // Highlight connected links
+                linkPath.style("opacity", l => (l.source === d || l.target === d) ? 0.9 : 0.15)
+                    .style("stroke", l => {
+                        if (l.source === d || l.target === d) {
+                            // Use the node's tier color for highlighted links
+                            return d.isHub ? "#fff" : colorScale(d.tier || 3);
+                        }
+                        return "#666";
+                    })
+                    .style("stroke-width", l => (l.source === d || l.target === d) ? "2px" : "1.2px");
+            })
+                .on("mousemove", (event) => {
+                    tooltip.style("left", (event.pageX + 15) + "px")
+                        .style("top", (event.pageY - 15) + "px");
+                })
+                .on("mouseout", () => {
+                    tooltip.style("display", "none");
+                    linkPath.style("opacity", null)
+                        .style("stroke", null)
+                        .style("stroke-width", null);
+                });
+
+        }).catch(err => {
+            document.getElementById("status").textContent = "Error loading data: " + err;
+            console.error(err);
+        });
+
+        // Text wrapping helper
+        function wrap(text, width) {
+            text.each(function () {
+                var text = d3.select(this),
+                    words = text.text().split(/\s+/).reverse(),
+                    word,
+                    line = [],
+                    lineNumber = 0,
+                    lineHeight = 1.1, // ems
+                    y = text.attr("y"),
+                    dy = parseFloat(text.attr("dy")),
+                    tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+                while (word = words.pop()) {
+                    line.push(word);
+                    tspan.text(line.join(" "));
+                    if (tspan.node().getComputedTextLength() > width) {
+                        line.pop();
+                        tspan.text(line.join(" "));
+                        line = [word];
+                        tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                    }
+                }
+            });
+        }
+
+        // --- Real-Time Analysis ---
+        const analyzeBtn = document.getElementById('analyze-btn');
+        const urlInput = document.getElementById('url-input');
+        const progressMessage = document.getElementById('progress-message');
+
+        // Real-time graph state
+        let liveNodes = [];
+        let liveLinks = [];
+        let liveSimulation = null;
+        let liveG = null;
+
+        analyzeBtn.addEventListener('click', () => {
+            const url = urlInput.value.trim();
+            if (!url) {
+                progressMessage.textContent = 'Please enter a URL';
+                return;
+            }
+
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                progressMessage.textContent = 'URL must start with http:// or https://';
+                return;
+            }
+
+            startRealTimeAnalysis(url);
+        });
+
+        // Allow Enter key to submit
+        urlInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                analyzeBtn.click();
+            }
+        });
+
+        function startRealTimeAnalysis(url) {
+            // Disable button and clear previous graph
+            analyzeBtn.disabled = true;
+            progressMessage.textContent = 'Connecting to server...';
+
+            // Clear existing visualization
+            d3.select("#canvas-container svg").remove();
+            liveNodes = [];
+            liveLinks = [];
+
+            // Create new SVG
+            const svg = d3.select("#canvas-container").append("svg")
+                .attr("width", WIDTH)
+                .attr("height", HEIGHT)
+                .call(d3.zoom().on("zoom", (event) => liveG.attr("transform", event.transform)))
+                .append("g");
+
+            liveG = svg.append("g");
+
+            // Connect to SSE endpoint
+            const eventSource = new EventSource(`${API_URL}/analyze`, {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url })
+            });
+
+            // Unfortunately, EventSource doesn't support POST with body
+            // So we'll use fetch with SSE manually
+            fetch(`${API_URL}/analyze`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ url })
+            }).then(response => {
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                function processStream() {
+                    reader.read().then(({ done, value }) => {
+                        if (done) {
+                            analyzeBtn.disabled = false;
+                            return;
+                        }
+
+                        buffer += decoder.decode(value, { stream: true });
+                        const lines = buffer.split('\n\n');
+                        buffer = lines.pop(); // Keep incomplete message in buffer
+
+                        lines.forEach(line => {
+                            if (line.trim() === '') return;
+
+                            const match = line.match(/event: (\w+)\ndata: (.+)/);
+                            if (match) {
+                                const eventType = match[1];
+                                const data = JSON.parse(match[2]);
+                                handleStreamEvent(eventType, data);
+                            }
+                        });
+
+                        processStream();
+                    });
+                }
+
+                processStream();
+            }).catch(error => {
+                progressMessage.textContent = `Error: ${error.message}`;
+                analyzeBtn.disabled = false;
+            });
+        }
+
+        function handleStreamEvent(eventType, data) {
+            switch (eventType) {
+                case 'status':
+                    progressMessage.textContent = data.message;
+                    break;
+
+                case 'node':
+                    addNodeRealTime(data);
+                    break;
+
+                case 'edge':
+                    addEdgeRealTime(data);
+                    break;
+
+                case 'complete':
+                    progressMessage.textContent = data.message;
+                    analyzeBtn.disabled = false;
+                    finalizeGraph();
+                    break;
+
+                case 'error':
+                    progressMessage.textContent = `Error: ${data.message}`;
+                    analyzeBtn.disabled = false;
+                    break;
+            }
+        }
+
+        function addNodeRealTime(nodeData) {
+            // Add to nodes array
+            let domain;
+            try {
+                // Try to parse URL for online sources
+                if (nodeData.url && nodeData.url.startsWith('http')) {
+                    domain = new URL(nodeData.url).hostname;
+                } else {
+                    // Offline source
+                    domain = nodeData.id.replace('[Offline] ', '');
+                }
+            } catch (e) {
+                domain = nodeData.id;
+            }
+
+            const node = {
+                id: nodeData.id,
+                title: nodeData.title,
+                domain: domain,
+                type: nodeData.type,
+                tier: nodeData.tier,
+                citations: 1,
+                x: WIDTH / 2 + (Math.random() - 0.5) * 200,
+                y: HEIGHT / 2 + (Math.random() - 0.5) * 200
+            };
+
+            liveNodes.push(node);
+
+            // Add to visualization
+            renderLiveNode(node);
+        }
+
+        function addEdgeRealTime(edgeData) {
+            const link = {
+                source: liveNodes.find(n => n.id === edgeData.source),
+                target: liveNodes.find(n => n.id === edgeData.target),
+                type: edgeData.type,
+                confidence: edgeData.confidence
+            };
+
+            if (link.source && link.target) {
+                liveLinks.push(link);
+                renderLiveEdge(link);
+            }
+        }
+
+        function renderLiveNode(node) {
+            const colorScale = d3.scaleLinear()
+                .domain([1, 5])
+                .range(["#6dd5ed", "#2193b0"])
+                .interpolate(d3.interpolateHcl);
+
+            const isOffline = node.type === 'virtual';
+
+            const nodeGroup = liveG.append("g")
+                .attr("class", isOffline ? "node offline" : "node")
+                .attr("transform", `translate(${node.x},${node.y})`)
+                .datum(node);
+
+            nodeGroup.append("circle")
+                .attr("r", 6)
+                .style("stroke", isOffline ? "#f4a460" : colorScale(node.tier || 3))
+                .style("fill", isOffline ? "rgba(244, 164, 96, 0.15)" : `${colorScale(node.tier || 3)}15`)
+                .style("stroke-dasharray", isOffline ? "3, 3" : "none")
+                .style("opacity", 0)
+                .transition()
+                .duration(500)
+                .style("opacity", 1);
+
+            // Add book icon for offline sources
+            if (isOffline) {
+                nodeGroup.append("text")
+                    .attr("dy", 5)
+                    .attr("text-anchor", "middle")
+                    .text("📖")
+                    .style("font-size", "14px")
+                    .style("opacity", 0)
+                    .transition()
+                    .duration(500)
+                    .style("opacity", 0.9);
+            }
+
+            nodeGroup.append("text")
+                .attr("dy", 18)
+                .attr("text-anchor", "middle")
+                .text(node.domain || node.title)
+                .style("font-size", "10px")
+                .style("fill", isOffline ? "#f4a460" : null)
+                .style("opacity", 0)
+                .transition()
+                .duration(500)
+                .style("opacity", 0.9);
+        }
+
+        function renderLiveEdge(link) {
+            liveG.insert("line", ":first-child")
+                .attr("class", "link")
+                .attr("x1", link.source.x)
+                .attr("y1", link.source.y)
+                .attr("x2", link.target.x)
+                .attr("y2", link.target.y)
+                .style("stroke", "#4a9db5")
+                .style("stroke-width", 1)
+                .style("opacity", 0)
+                .transition()
+                .duration(500)
+                .style("opacity", 0.5);
+        }
+
+        function finalizeGraph() {
+            // Apply force simulation to organize nodes nicely
+            progressMessage.textContent = 'Organizing layout...';
+
+            const simulation = d3.forceSimulation(liveNodes)
+                .force("link", d3.forceLink(liveLinks).id(d => d.id).distance(100))
+                .force("charge", d3.forceManyBody().strength(-300))
+                .force("center", d3.forceCenter(WIDTH / 2, HEIGHT / 2))
+                .force("collide", d3.forceCollide(30));
+
+            simulation.on("tick", () => {
+                liveG.selectAll(".node")
+                    .attr("transform", d => `translate(${d.x},${d.y})`);
+
+                liveG.selectAll(".link")
+                    .attr("x1", d => d.source.x)
+                    .attr("y1", d => d.source.y)
+                    .attr("x2", d => d.target.x)
+                    .attr("y2", d => d.target.y);
+            });
+
+            simulation.alpha(1).restart();
+
+            setTimeout(() => {
+                simulation.stop();
+                progressMessage.textContent = `Complete! ${liveNodes.length} nodes, ${liveLinks.length} links`;
+            }, 3000);
+        }
+    </script>
+</body>
+
+</html>

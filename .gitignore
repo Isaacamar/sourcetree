@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+ENV/
+env/
+
+# SpaCy models
+*.spacy
+
+# API Keys
+.env
+*.key
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Railway
+.railway/
+
+# Project specific
+frontend/graph_data*.json
+!frontend/graph_data.json
+
+# Screenshots/demos
+*.png
+*.jpg
+*.jpeg
+!lombardi.jpg
+
+# Personal notes
+Project_overview.txt
+plan.txt
+cmd.txt
+analysis.md

@@ -1,0 +1,9 @@
+requests
+beautifulsoup4
+spacy
+networkx
+anthropic
+googlesearch-python
+flask
+flask-cors
+gunicorn

@@ -1,0 +1,299 @@
+{
+  "nodes": [
+    {
+      "id": "https://www.nytimes.com/2025/12/15/opinion/monroe-doctrine-trump.html",
+      "title": "Opinion | Trump Wants to Carve Up the World. It\u2019s a Blueprint for Disaster. - The New York Times",
+      "domain": "www.nytimes.com",
+      "type": "news_mainstream",
+      "tier": 3,
+      "citations": 0
+    },
+    {
+      "id": "https://www.presidency.ucsb.edu/documents/first-annual-message-6",
+      "title": "First Annual Message | The American Presidency Project",
+      "domain": "www.presidency.ucsb.edu",
+      "type": "academic",
+      "tier": 2,
+      "citations": 1
+    },
+    {
+      "id": "https://www.presidency.ucsb.edu/",
+      "title": "https://www.presidency.ucsb.edu/",
+      "domain": "www.presidency.ucsb.edu",
+      "type": "unknown",
+      "tier": 5,
+      "citations": 1
+    },
+    {
+      "id": "https://www.state.gov/releases/office-of-the-spokesperson/2025/12/secretary-of-state-marco-rubio-with-sean-hannity-of-fox-news-hannity",
+      "title": "Technical Difficulties",
+      "domain": "www.state.gov",
+      "type": "government",
+      "tier": 1,
+      "citations": 1
+    },
+    {
+      "id": "https://contextus.org/Henry_Cabot_Lodge%2C_League_of_Nations_Speech_(Feb_28%2C_1919).1?lang=en",
+      "title": "Henry Cabot Lodge, League of Nations Speech (Feb 28, 1919) 1",
+      "domain": "contextus.org",
+      "type": "organization",
+      "tier": 4,
+      "citations": 1
+    },
+    {
+      "id": "https://www.ruhr-uni-bochum.de/gna/Quellensammlung/07/07_henryclodgeleagueofnations_1919.html",
+      "title": "Henry Cabot Lodge, \"League of Nations\" , 1919",
+      "domain": "www.ruhr-uni-bochum.de",
+      "type": "commercial",
+      "tier": 4,
+      "citations": 1
+    },
+    {
+      "id": "http://memory.loc.gov/ammem/nfhtml/nfexww1.html",
+      "title": "http://memory.loc.gov/ammem/nfhtml/nfexww1.html",
+      "domain": "memory.loc.gov",
+      "type": "unknown",
+      "tier": 5,
+      "citations": 1
+    },
+    {
+      "id": "https://www.ruhr-uni-bochum.de/gna/Quellensammlung/inhalt07.htm",
+      "title": "https://www.ruhr-uni-bochum.de/gna/Quellensammlung/inhalt07.htm",
+      "domain": "www.ruhr-uni-bochum.de",
+      "type": "unknown",
+      "tier": 5,
+      "citations": 1
+    },
+    {
+      "id": "https://foreignpolicy.com/2025/12/05/trump-national-security-strategy-america-first",
+      "title": "What's in Trump's New National Security Strategy",
+      "domain": "foreignpolicy.com",
+      "type": "commercial",
+      "tier": 4,
+      "citations": 1
+    },
+    {
+      "id": "https://www.whitehouse.gov/wp-content/uploads/2025/12/2025-National-Security-Strategy.pdf",
+      "title": "https://www.whitehouse.gov/wp-content/uploads/2025/12/2025-National-Security-Strategy.pdf",
+      "domain": "www.whitehouse.gov",
+      "type": "unknown",
+      "tier": 5,
+      "citations": 1
+    },
+    {
+      "id": "https://www.ebsco.com/research-starters/political-science/great-replacement-theory-white-replacement-theory",
+      "title": "https://www.ebsco.com/research-starters/political-science/great-replacement-theory-white-replacement-theory",
+      "domain": "www.ebsco.com",
+      "type": "unknown",
+      "tier": 5,
+      "citations": 1
+    },
+    {
+      "id": "https://www.nytimes.com/2025/04/21/us/politics/trump-birthrate-proposals.html",
+      "title": "https://www.nytimes.com/2025/04/21/us/politics/trump-birthrate-proposals.html",
+      "domain": "www.nytimes.com",
+      "type": "unknown",
+      "tier": 5,
+      "citations": 1
+    },
+    {
+      "id": "https://www.whitehouse.gov/presidential-actions/2025/12/america-250-presidential-message-on-the-anniversary-of-the-monroe-doctrine/",
+      "title": "https://www.whitehouse.gov/presidential-actions/2025/12/america-250-presidential-message-on-the-anniversary-of-the-monroe-doctrine/",
+      "domain": "www.whitehouse.gov",
+      "type": "unknown",
+      "tier": 5,
+      "citations": 1
+    },
+    {
+      "id": "https://bsky.app/profile/iyengarish.bsky.social",
+      "title": "https://bsky.app/profile/iyengarish.bsky.social",
+      "domain": "bsky.app",
+      "type": "unknown",
+      "tier": 5,
+      "citations": 1
+    },
+    {
+      "id": "https://nytedu.com/",
+      "title": "https://nytedu.com/",
+      "domain": "nytedu.com",
+      "type": "unknown",
+      "tier": 5,
+      "citations": 1
+    },
+    {
+      "id": "[Offline] The White House",
+      "title": "[Offline] The White House",
+      "domain": "Offline Source",
+      "type": "virtual",
+      "tier": 1,
+      "citations": 1
+    },
+    {
+      "id": "[Offline] President James Monroe",
+      "title": "[Offline] President James Monroe",
+      "domain": "Offline Source",
+      "type": "virtual",
+      "tier": 1,
+      "citations": 1
+    },
+    {
+      "id": "[Offline] President James K. Polk",
+      "title": "[Offline] President James K. Polk",
+      "domain": "Offline Source",
+      "type": "virtual",
+      "tier": 1,
+      "citations": 1
+    },
+    {
+      "id": "[Offline] Secretary of State Marco Rubio",
+      "title": "[Offline] Secretary of State Marco Rubio",
+      "domain": "Offline Source",
+      "type": "virtual",
+      "tier": 1,
+      "citations": 1
+    },
+    {
+      "id": "[Offline] White House National Security Strategy report",
+      "title": "[Offline] White House National Security Strategy report",
+      "domain": "Offline Source",
+      "type": "virtual",
+      "tier": 1,
+      "citations": 1
+    }
+  ],
+  "links": [
+    {
+      "source": "https://www.nytimes.com/2025/12/15/opinion/monroe-doctrine-trump.html",
+      "target": "https://www.presidency.ucsb.edu/documents/first-annual-message-6",
+      "type": "explicit",
+      "confidence": 0.8,
+      "context": "President James K. Polk, in 1845, was among the first to elevate the statement into writ,invoking\u201cMr. Monroe\u2019s doctrine\u201d in his push to take California from Mexico before the British. Polk would againciteMonroe when he annexed Texas. Subsequent presidents used the doctrine as an open police warrant,"
+    },
+    {
+      "source": "https://www.nytimes.com/2025/12/15/opinion/monroe-doctrine-trump.html",
+      "target": "https://www.state.gov/releases/office-of-the-spokesperson/2025/12/secretary-of-state-marco-rubio-with-sean-hannity-of-fox-news-hannity",
+      "type": "explicit",
+      "confidence": 0.8,
+      "context": "And the United States in Latin America. \u201cIf you\u2019re focused on America and America First, you start with your own hemisphere,\u201d Secretary of State Marco Rubiosaidrecently. And the Trump administration has, presiding in the last few months over a frenzy of activity, not just executing speedboat operati"
+    },
+    {
+      "source": "https://www.nytimes.com/2025/12/15/opinion/monroe-doctrine-trump.html",
+      "target": "https://contextus.org/Henry_Cabot_Lodge%2C_League_of_Nations_Speech_(Feb_28%2C_1919).1?lang=en",
+      "type": "explicit",
+      "confidence": 0.8,
+      "context": "America First nationalists have long been the staunchest defenders of the Monroe Doctrine. After World War I, nationalists used it to push back against Woodrow Wilson\u2019s proposed League of Nations. Join the league, Henry Cabot Lodge, the powerful Republican chair of the Senate Foreign Relations Commi"
+    },
+    {
+      "source": "https://www.nytimes.com/2025/12/15/opinion/monroe-doctrine-trump.html",
+      "target": "https://www.ruhr-uni-bochum.de/gna/Quellensammlung/07/07_henryclodgeleagueofnations_1919.html",
+      "type": "explicit",
+      "confidence": 0.8,
+      "context": "America First nationalists have long been the staunchest defenders of the Monroe Doctrine. After World War I, nationalists used it to push back against Woodrow Wilson\u2019s proposed League of Nations. Join the league, Henry Cabot Lodge, the powerful Republican chair of the Senate Foreign Relations Commi"
+    },
+    {
+      "source": "https://www.nytimes.com/2025/12/15/opinion/monroe-doctrine-trump.html",
+      "target": "https://foreignpolicy.com/2025/12/05/trump-national-security-strategy-america-first",
+      "type": "explicit",
+      "confidence": 0.8,
+      "context": "Washington has no intention of withdrawing from its position of global primacy. In place of the now defunct liberal international order, the White House is implicitly globalizing the Monroe Doctrine, claiming for the United States the right to unilaterallyrespondto perceived threats not just within "
+    },
+    {
+      "source": "https://www.nytimes.com/2025/12/15/opinion/monroe-doctrine-trump.html",
+      "target": "https://nytedu.com/",
+      "type": "explicit",
+      "confidence": 1.0,
+      "context": "School of The NYT"
+    },
+    {
+      "source": "https://www.nytimes.com/2025/12/15/opinion/monroe-doctrine-trump.html",
+      "target": "[Offline] The White House",
+      "type": "virtual",
+      "confidence": 0.8,
+      "context": ""
+    },
+    {
+      "source": "https://www.nytimes.com/2025/12/15/opinion/monroe-doctrine-trump.html",
+      "target": "[Offline] President James Monroe",
+      "type": "virtual",
+      "confidence": 0.8,
+      "context": ""
+    },
+    {
+      "source": "https://www.nytimes.com/2025/12/15/opinion/monroe-doctrine-trump.html",
+      "target": "[Offline] President James K. Polk",
+      "type": "virtual",
+      "confidence": 0.8,
+      "context": ""
+    },
+    {
+      "source": "https://www.nytimes.com/2025/12/15/opinion/monroe-doctrine-trump.html",
+      "target": "[Offline] Secretary of State Marco Rubio",
+      "type": "virtual",
+      "confidence": 0.8,
+      "context": ""
+    },
+    {
+      "source": "https://www.nytimes.com/2025/12/15/opinion/monroe-doctrine-trump.html",
+      "target": "[Offline] White House National Security Strategy report",
+      "type": "virtual",
+      "confidence": 0.8,
+      "context": ""
+    },
+    {
+      "source": "https://www.presidency.ucsb.edu/documents/first-annual-message-6",
+      "target": "https://www.presidency.ucsb.edu/",
+      "type": "explicit",
+      "confidence": 1.0,
+      "context": "The American Presidency Project"
+    },
+    {
+      "source": "https://www.ruhr-uni-bochum.de/gna/Quellensammlung/07/07_henryclodgeleagueofnations_1919.html",
+      "target": "http://memory.loc.gov/ammem/nfhtml/nfexww1.html",
+      "type": "explicit",
+      "confidence": 0.8,
+      "context": "Quelle:Library of Congresshttp://memory.loc.gov/ammem/nfhtml/nfexww1.html"
+    },
+    {
+      "source": "https://www.ruhr-uni-bochum.de/gna/Quellensammlung/07/07_henryclodgeleagueofnations_1919.html",
+      "target": "https://www.ruhr-uni-bochum.de/gna/Quellensammlung/inhalt07.htm",
+      "type": "explicit",
+      "confidence": 1.0,
+      "context": "In Weltpolitik und Erstem Weltkrieg"
+    },
+    {
+      "source": "https://foreignpolicy.com/2025/12/05/trump-national-security-strategy-america-first",
+      "target": "https://www.whitehouse.gov/wp-content/uploads/2025/12/2025-National-Security-Strategy.pdf",
+      "type": "explicit",
+      "confidence": 1.0,
+      "context": "The Trump administration released its long-anticipatednew national security strategylate Thursday night, laying out a vision that attempts to reconcile U.S. global dominance with a U.S. retreat from many aspects of its decades-long global role."
+    },
+    {
+      "source": "https://foreignpolicy.com/2025/12/05/trump-national-security-strategy-america-first",
+      "target": "https://www.ebsco.com/research-starters/political-science/great-replacement-theory-white-replacement-theory",
+      "type": "explicit",
+      "confidence": 0.5,
+      "context": "Rhetoric echoing white nationalist ideas related to theGreat Replacement conspiracy theoryalso permeate the entire strategy, which at one point warns of \u201ccivilizational erasure\u201d in Europe and calls for the restoration of the continent\u2019s \u201cWestern identity.\u201d The strategy also nods to theTrump administ"
+    },
+    {
+      "source": "https://foreignpolicy.com/2025/12/05/trump-national-security-strategy-america-first",
+      "target": "https://www.nytimes.com/2025/04/21/us/politics/trump-birthrate-proposals.html",
+      "type": "explicit",
+      "confidence": 0.5,
+      "context": "Rhetoric echoing white nationalist ideas related to theGreat Replacement conspiracy theoryalso permeate the entire strategy, which at one point warns of \u201ccivilizational erasure\u201d in Europe and calls for the restoration of the continent\u2019s \u201cWestern identity.\u201d The strategy also nods to theTrump administ"
+    },
+    {
+      "source": "https://foreignpolicy.com/2025/12/05/trump-national-security-strategy-america-first",
+      "target": "https://www.whitehouse.gov/presidential-actions/2025/12/america-250-presidential-message-on-the-anniversary-of-the-monroe-doctrine/",
+      "type": "explicit",
+      "confidence": 0.8,
+      "context": "Trump\u2019s refocusing of U.S. influence on its immediate vicinity\u2014one of the first and most prominent parts of the strategy\u2014has been foreshadowed for months, including earlier this week when the administrationpublisheda \u201cTrump corollary\u201d to the 1823 Monroe Doctrine stating that \u201cthe American people\u2014not"
+    },
+    {
+      "source": "https://foreignpolicy.com/2025/12/05/trump-national-security-strategy-america-first",
+      "target": "https://bsky.app/profile/iyengarish.bsky.social",
+      "type": "explicit",
+      "confidence": 1.0,
+      "context": "Rishi Iyengaris a staff writer atForeign Policy. Bluesky:@iyengarish.bsky.socialX:@IyengarishInstagram:@iyengar.rishi"
+    }
+  ]
+}
