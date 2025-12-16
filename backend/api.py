@@ -13,7 +13,13 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from backend.graph_builder import SourceGraph
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for GitHub Pages
+CORS(app, resources={
+    r"/*": {
+        "origins": ["https://isaacamar.github.io", "http://localhost:8000"],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type"]
+    }
+})
 
 # Store active analysis sessions
 sessions = {}
